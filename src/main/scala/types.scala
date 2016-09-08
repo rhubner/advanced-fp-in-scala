@@ -14,21 +14,34 @@ object exercise1 {
 }
 
 object exercise2 {
-  final case class Box[A](/* ??? */)
+  //Box is type constructor, one parameter, start
+
+  final case class Box[A](a: A)
 }
 
 object exercise3 {
-  // 1. scala.collection.List
-  // 2. F[_, _]
-  // 3. Option
-  // 4. Int
-  // 5. T[_[_], _]
+  // 1. scala.collection.List  // * => *
+  // 2. F[_, _] [*, *] => *
+  // 3. Option * => *
+  // 4. Int *
+  // 5. T[_[_], _] [(* => *), *] => *
 }
 
 object exercise4 {
   trait FileSystem {
+
+    type File
+
+    def ls: List[File]
+
     // ???
   }
+
+  def fs: FileSystem = ???
+
+  val myFiles: List[fs#File]
+
+
 }
 
 object exercise5 {
@@ -36,9 +49,13 @@ object exercise5 {
     def value: F[String]
   }
 
-  /*
-  new Example[_] { // <-- ???
+//new Example[Either[?, Int]] {
+
+  type L[A] = Either[A, Int]
+
+// val moje = new Example[({type L[A]  = Either[A, Int]})#L ] { // <-- ???
+  val moje = new Example[L] { // <-- ???
     def value: Either[String, Int] = Right(2)
   }
-  */
+
 }

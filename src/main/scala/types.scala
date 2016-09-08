@@ -39,7 +39,7 @@ object exercise4 {
 
   def fs: FileSystem = ???
 
-  val myFiles: List[fs#File]
+  // val myFiles: List[fs#File] = ???
 
 
 }

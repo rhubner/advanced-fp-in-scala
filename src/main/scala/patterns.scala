@@ -7,13 +7,80 @@ import scalaz._
 import Scalaz._
 
 object exercise1 {
-  def readRowCol(): (Int, Int) = {
+
+  // () => (Int, Int) //false promise :D :D
+  // (2,3)
+
+  case class NotANumber(value: String) extends Error
+
+  def readRowCol(): ValidationNel[Error, (Int, Int)] = {
+
+    //def toInt(value : String): Error \/ Int = \/.fromTryCatchNonFatal(value.toInt).leftMap(_ => NotANumber(value))
+    def toInt(value : String): ValidationNel[Error, Int] = Validation.fromTryCatchNonFatal(value.toInt).leftMap(_ => NonEmptyList[Error](NotANumber(value)))
+
+
+
     println("Please enter a row:")
     val row = readLine()
     println("Please enter a column:")
     val col = readLine()
-    (row.toInt, col.toInt)
+
+
+
+    val ccc = (toInt(col) |@| toInt(row))((_, ))
+
+
+//    for {
+//      rowInt <- toInt(row)
+//      colInt <- toInt(col)
+//    }yield (rowInt, colInt)
+
+    ???
   }
+
+  val aaa = Maybe.fromNullable(1000)
+  val bbb: String \/ Int =  ??? ///  \/.right(100)
+
+  //use some types for error
+
+  sealed trait Error
+  case object HostNotReachable extends Error
+  case object UnspupportedHttpVersion extends Error
+  case object ProtocolError extends Error
+
+  val portNumber: Error \/ Int = ???
+
+  // Validation[A,B]
+  // Failure(value: A)
+  // Success(value: B)
+
+  val validation : Validation[String, Int] = ???
+
+
+  def readPortNumber: Error \/ Int = ???
+
+  def readHostname: Error \/ String = ???
+
+  def readOtherConfig : Maybe[String] = ???
+
+  val a = for {
+    portNumber <- readPortNumber
+    hostname <- readHostname
+    otherConfig <- readOtherConfig.toRight(ProtocolError)
+  } yield (portNumber, hostname, otherConfig)
+
+  readPortNumber.flatMap(portNumber =>
+    readHostname.map(hostname =>
+      (portNumber, hostname)
+    )
+  )
+
+
+
+
+
+
+
 }
 
 object exercise2 {

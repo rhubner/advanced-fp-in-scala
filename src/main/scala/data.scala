@@ -7,45 +7,56 @@ import scalaz.{Lens => _, _}
 import Scalaz._
 
 object exercise1 {
-  // 1. All prime numbers
-  // 2. A JSON document
+  // 1. All prime numbers - Codata
+  // 2. A JSON document - Data
 }
 
 object exercise2 {
   sealed trait Boolean {
-    // ???
+    def apply[A](ifTrue: => A, ifFalse: => A): A
   }
   object Boolean {
     val True = new Boolean {
-      // ???
+      override def apply[A](idFture: => A, ifFalse: => A): A = idFture
     }
     val False = new Boolean {
       // ???
+      override def apply[A](idFture: => A, ifFalse: => A): A = ifFalse
     }
   }
 
+
+
   sealed trait Either[A, B] {
-    // ???
+    def apply[Z](left: A => Z, right: B => Z): Z
+
   }
   object Either {
     def left[A, B](v: A): Either[A, B] = new Either[A, B] {
-      // ???
+      override def apply[Z](left: (A) => Z, right: (B) => Z): Z = left(v)
     }
     def right[A, B](v: B): Either[A, B] = new Either[A, B] {
-      // ???
+      override def apply[Z](left: (A) => Z, right: (B) => Z): Z = right(v)
     }
+
   }
+
+
+  val result: Either[String, Int] = Either.left("bleee")
+
+
+
 
   // Cheat: type Option[A] = Either[Unit, A]
   sealed trait Option[A] {
-    // ???
+    def apply[Z](some: A => Z, none: => Z ): Z
   }
   object Option {
     def none[A]: Option[A] = new Option[A] {
-      // ???
+      override def apply[Z](some: (A) => Z, none: => Z): Z = none
     }
     def some[A](v: A): Option[A] = new Option[A] {
-      // ???
+      override def apply[Z](some: (A) => Z, none: => Z): Z = some(v)
     }
   }
 }
@@ -74,8 +85,45 @@ object exercise3 {
   }
 
   trait Integer { self =>
+
+
+
+
     // ???
   }
+
+  //A - B
+  case class Integer0(pos: Natural, neg: Natural) {
+    def + (that: Integer0) = Integer0(pos + that.neg, neg + that.pos)
+
+    def unary_- = Integer0(neg, pos)
+
+  }
+
+  case class Rational(num: Integer0, denom: Integer0)
+
+  //case class Real(lessThat: Rational => Boolean, greaterThan: Rational => Boolean)
+
+
+
+  case class Identity[A](value: A)
+
+  implicit val IdentityMonad = new Monad[Identity]  {
+    override def bind[A, B](fa: Identity[A])(f: (A) => Identity[B]): Identity[B] = f(fa.value)
+
+    override def point[A](a: => A): Identity[A] = Identity(a)
+  }
+
+
+  //F ~> B
+  trait NaturalTransformation[F[_], G[_]] {
+    //def apply[]()
+  }
+
+
+  //F ~> Identity
+  // Option ~> Identity ----- NOOOOOO.
+
 }
 
 object exercise4 {
@@ -115,10 +163,42 @@ object exercise5 {
 }
 
 object exercise6 {
+
   sealed trait JSON[A]
-  // ???
+  final case class Null[A]() extends JSON[A]
+  final case class Array[A](value: List[A]) extends JSON[A]
+  final case class Object[A](value: List[(String, A)]) extends JSON[A]
+  final case class Number[A](value: String) extends JSON[A]
+  final case class Boolean[A](value: scala.Boolean) extends JSON[A]
+
+  case class Fix[F[_]](value: F[Fix[F]])
+
+  type JSONR = Fix[JSON]
+
+  // type JsonXml = Fix[Coproduct[JSON, XML]]
+
+
+  // type JSON = Coproduct of all case classes to represent JSON
+
+
+
+
+  //def array[A](v: List[A]): Fix[JSON] = Fix[JSON]
+
+  implicit val FunctorJSON = new Functor[JSON] {
+    override def map[A, B](fa: JSON[A])(f: (A) => B): JSON[B] = ???
+  }
+
+  val exampl: JSONR = Fix[JSON](Array(List(Fix[JSON](Boolean(true)))))
+
+  //Cofree[JSON, ?]
+
+
 
   val TraverseJson: Traverse[JSON] = ???
+
+
+
 }
 
 object exercise7 {
@@ -128,12 +208,12 @@ object exercise7 {
 
   val ExampleJSON : RecursiveJSON = ???
 
-  def detectStringNumbers(v: RecursiveJSON): RecursiveJSON = {
-    val functorT: FunctorT[Fix] = implicitly[FunctorT[Fix]]
-
-    import functorT._
-
-
-    ???
-  }
+//  def detectStringNumbers(v: RecursiveJSON): RecursiveJSON = {
+//    val functorT: FunctorT[Fix] = implicitly[FunctorT[Fix]]
+//
+//    import functorT._
+//
+//
+//    ???
+//  }
 }

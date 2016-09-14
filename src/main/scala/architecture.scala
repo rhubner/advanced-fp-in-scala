@@ -1,10 +1,75 @@
 package lambdaconf.architecture
 
+import lambdaconf.architecture.exercise0.Readln
 import matryoshka._
 import monocle._
-import scalaz._
 
+import scalaz._
 import Scalaz._
+
+
+
+object exercise0 {
+
+  sealed trait Free[F[_], A]    ///replace everywhere
+
+  sealed trait Console[A]
+
+  case class Return[A](value : A) extends  Console[A]
+
+  case class Println[A](value: String) extends Console[Unit]
+
+  case class Readln[A](f: String => A) extends Console[A]
+
+  case class Bind[A,B](first: Console[A], second: A => Console[B]) extends Console[B]
+
+  val program: Console[Unit] =
+    Bind(
+      Println("what is your name"),
+      (_ : Unit) => Bind(
+        Readln(line => line),
+        (line : String) => Println("hello line : " + line)
+      )
+
+//      Readln[Console](name => Println("hello line : " + name))
+  )
+
+
+  implicit val MonadConsole : Monad[Console] = new Monad[Console] {
+    override def bind[A, B](fa: Console[A])(f: (A) => Console[B]): Console[B] = Bind(fa, f)
+
+    override def point[A](a: => A): Console[A] = Return(a)
+  }
+
+//  val program2: Console[Unit] =
+//    for {
+//      _ <- Println("what is your name")
+//      name <- Readln( line => line)
+//      _ <- Println("Hello " + name)
+//    }yield ()
+
+
+
+
+  //  val consoleIO : Console ~> IO = ???
+
+
+
+
+  sealed trait FileIO[A]
+
+  case class Ls(path: String) extends FileIO[List[String]]
+
+  val program3 = Free[Coproduct[Console, FileIO], Unit] = ???
+
+
+  val program4 = Free[Console :+: FileIO :+: Logging, Unit] = ???
+
+
+}
+
+
+
 
 object exercise1 {
   final case class CashAmount()
